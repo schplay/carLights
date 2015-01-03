@@ -36,8 +36,8 @@
                 <p class="event listening">Connecting to Device</p>
                 <p class="event received">Device is Ready</p>
             </div>
-            <button value="send" onclick="send()">send</button><br/><br/>
-            <button value="list" onclick="list()">list</button>
+            <button onclick="toggleLed()">led</button><br/><br/>
+            <button onclick="list()">list</button>
             <pre id="list"></pre>
         </div>
         <script type="text/javascript" src="cordova.js"></script>
@@ -46,6 +46,8 @@
         <script type="text/javascript">
             app.initialize();
             var bluetoothSerial = cordova.require('bluetoothSerial');
+
+            var ledStatus = 0;
 
             function list() {
                 bluetoothSerial.isEnabled(function() {
@@ -60,10 +62,28 @@
                     alert('Bluetooth disabled!');
                 });
             }
-            function send() {
+            function toggleLed() {
                 bluetoothSerial.isEnabled(function() {
                     bluetoothSerial.isConnected(function() {
-                        bluetoothSerial.write('hellooo', function() { alert('it worked!')}, function() { alert('oh no!')});
+                        var message = '';
+                        if(ledStatus == 0) {
+                            message = 'on';
+                        } else {
+                            message = 'off';
+                        }
+                        bluetoothSerial.write(message,
+                            function() {
+                                if(ledStatus == 0) {
+                                    ledStatus = 1;
+                                } else {
+                                    ledStatus = 0;
+                                }
+                                alert('led '+message);
+                            },
+                            function() {
+                                alert('oh no!');
+                            }
+                        );
                     },
                     function() {
                         alert('Device not connected!');
